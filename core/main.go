@@ -15,17 +15,18 @@ import (
 
 var (
 	slackGroupURL string
+	failure       launchTmate.FailureInfo
 )
 
 func pipelineFailure(w http.ResponseWriter, request *http.Request) {
 	decoder := json.NewDecoder(request.Body)
 
-	err := decoder.Decode(&launchTmate.FailureData)
+	err := decoder.Decode(&failure)
 	if err != nil {
 		panic(fmt.Sprintf("Decoding failed %s", err))
 	}
 
-	notifyHumansOfFailure(launchTmate.FailureData)
+	notifyHumansOfFailure(failure)
 }
 
 func notifyHumansOfFailure(data launchTmate.FailureInfo) {
@@ -43,6 +44,11 @@ func notifyHumansOfFailure(data launchTmate.FailureInfo) {
 	fmt.Printf("FAILUREDATA: %#v\n", launchTmate.FailureData)
 }
 
+func incomingCommand(w http.ResponseWriter, request *http.Request) {
+	sessionUrl := "https://tmate.io/t/9Vux62esXKzxJwX4240VICUl1"
+	w.Write([]byte(fmt.Sprintf("Your hijacked session for pipeline '%s' is ready to use - %s", failure.Pipeline, sessionUrl)))
+}
+
 func main() {
 	slackGroupURL = os.Getenv("SLACK_HOOK_URL")
 	if slackGroupURL == "" {
@@ -54,6 +60,7 @@ func main() {
 	r.HandleFunc("/failure", pipelineFailure).Methods("POST")
 
 	r.HandleFunc("/tmate", launchTmate.Launch).Methods("POST")
+	r.HandleFunc("/helpmeout", incomingCommand).Methods("POST")
 	// Bind to a port and pass our router in
 	var port string
 	port = os.Getenv("PORT")
