@@ -48,7 +48,7 @@ func main() {
 	// Routes consist of a path and a handler function.
 	r.HandleFunc("/failure", pipelineFailure).Methods("POST")
 
-	r.HandleFunc("/tmate", launchTmate.Launch()).Methods("POST")
+	r.HandleFunc("/tmate", launchTmate.Launch).Methods("POST")
 	// Bind to a port and pass our router in
 	var port string
 	port = os.Getenv("PORT")
