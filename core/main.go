@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	slackGroupURL = "https://hooks.slack.com/services/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"
+	slackGroupURL = SECRET
 )
 
 type FailureInfo struct {
@@ -36,9 +36,9 @@ func launchTmate(w http.ResponseWriter, request *http.Request) {
 }
 
 func notifyHumansOfFailure(data FailureInfo) {
-	message := "Hello lovely people"
+	message := fmt.Sprintf("{\"channel\": \"@somebody\", \"username\": \"webhookbot\", \"text\": \"%s\", \"icon_emoji\": \":ghost:\"}", data.Job)
 	messageReader := strings.NewReader(message)
-	response, err := http.Post(slackGroupURL, "text", messageReader)
+	response, err := http.Post(slackGroupURL, "text/json", messageReader)
 
 	fmt.Print(response)
 	if err != nil {
