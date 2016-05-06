@@ -28,9 +28,9 @@ func pipelineFailure(w http.ResponseWriter, request *http.Request) {
 	notifyHumansOfFailure()
 }
 
-func notifyHumansOfFailure(data FailureInfo) {
-	failureUrl := fmt.Sprintf("http://192.168.100.4:8080/pipelines/%s/jobs/%s/builds/%s", data.Pipeline, data.Job, data.Build)
-	messageText := fmt.Sprintf("There was an error on %s/%s, build #%s. %s", data.Pipeline, data.Job, data.Build, failureUrl)
+func notifyHumansOfFailure() {
+	failureUrl := fmt.Sprintf("http://192.168.100.4:8080/pipelines/%s/jobs/%s/builds/%s", launchTmate.FailureData.Pipeline, launchTmate.FailureData.Job, launchTmate.FailureData.Build)
+	messageText := fmt.Sprintf("There was an error on %s/%s, build #%s. %s", launchTmate.FailureData.Pipeline, launchTmate.FailureData.Job, launchTmate.FailureData.Build, failureUrl)
 	message := fmt.Sprintf("{\"channel\": \"#notifier-plus\", \"username\": \"notifier-plus-bot\", \"text\": \"%s\", \"icon_emoji\": \":ghost:\"}", messageText)
 	messageReader := strings.NewReader(message)
 	response, err := http.Post(slackGroupURL, "text/json", messageReader)
