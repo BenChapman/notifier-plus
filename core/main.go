@@ -48,7 +48,7 @@ func notifyHumansOfFailure(data launchTmate.FailureInfo) {
 
 func incomingCommand(w http.ResponseWriter, request *http.Request) {
 	sessionUrl := launchTmate.Launch("https://tmate.io/t/" + tmateUser)
-	w.Write([]byte(fmt.Sprintf("Your hijacked session for pipeline '%s' is ready to use - %s", failure.Pipeline, sessionUrl)))
+	w.Write([]byte(fmt.Sprintf("Your hijacked session for pipeline '%s' is ready to use - %s\nUse the command `fly -t lite hijack -j %s/%s`", failure.Pipeline, sessionUrl, failure.Pipeline, failure.Job)))
 }
 
 func main() {
