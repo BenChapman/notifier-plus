@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	slackGroupURL = SECRET
+	slackGroupURL string
 )
 
 func pipelineFailure(w http.ResponseWriter, request *http.Request) {
@@ -25,12 +25,12 @@ func pipelineFailure(w http.ResponseWriter, request *http.Request) {
 		panic(fmt.Sprintf("Decoding failed %s", err))
 	}
 
-	notifyHumansOfFailure()
+	notifyHumansOfFailure(launchTmate.FailureData)
 }
 
-func notifyHumansOfFailure() {
-	failureUrl := fmt.Sprintf("http://192.168.100.4:8080/pipelines/%s/jobs/%s/builds/%s", launchTmate.FailureData.Pipeline, launchTmate.FailureData.Job, launchTmate.FailureData.Build)
-	messageText := fmt.Sprintf("There was an error on %s/%s, build #%s. %s", launchTmate.FailureData.Pipeline, launchTmate.FailureData.Job, launchTmate.FailureData.Build, failureUrl)
+func notifyHumansOfFailure(data launchTmate.FailureInfo) {
+	failureUrl := fmt.Sprintf("http://192.168.100.4:8080/pipelines/%s/jobs/%s/builds/%s", data.Pipeline, data.Job, data.Build)
+	messageText := fmt.Sprintf("There was an error on %s/%s, build #%s. %s", data.Pipeline, data.Job, data.Build, failureUrl)
 	message := fmt.Sprintf("{\"channel\": \"#notifier-plus\", \"username\": \"notifier-plus-bot\", \"text\": \"%s\", \"icon_emoji\": \":ghost:\"}", messageText)
 	messageReader := strings.NewReader(message)
 	response, err := http.Post(slackGroupURL, "text/json", messageReader)
@@ -44,6 +44,11 @@ func notifyHumansOfFailure() {
 }
 
 func main() {
+	slackGroupURL = os.Getenv("SLACK_HOOK_URL")
+	if slackGroupURL == "" {
+		log.Fatal("You must specify a SLACK_HOOK_URL environment variable for your hook")
+	}
+
 	r := mux.NewRouter()
 	// Routes consist of a path and a handler function.
 	r.HandleFunc("/failure", pipelineFailure).Methods("POST")
