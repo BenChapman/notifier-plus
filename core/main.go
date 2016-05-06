@@ -33,7 +33,7 @@ func pipelineFailure(w http.ResponseWriter, request *http.Request) {
 
 func notifyHumansOfFailure(data launchTmate.FailureInfo) {
 	failureUrl := fmt.Sprintf("http://192.168.100.4:8080/pipelines/%s/jobs/%s/builds/%s", data.Pipeline, data.Job, data.Build)
-	messageText := fmt.Sprintf("There was an error on %s/%s, build #%s. %s", data.Pipeline, data.Job, data.Build, failureUrl)
+	messageText := fmt.Sprintf("There was an error on %s/%s, build #%s. %s\nType /notifier-plus if you'd like some help.", data.Pipeline, data.Job, data.Build, failureUrl)
 	message := fmt.Sprintf("{\"channel\": \"#notifier-plus\", \"username\": \"notifier-plus-bot\", \"text\": \"%s\", \"icon_emoji\": \":ghost:\"}", messageText)
 	messageReader := strings.NewReader(message)
 	response, err := http.Post(slackGroupURL, "text/json", messageReader)
