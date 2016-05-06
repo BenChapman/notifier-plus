@@ -47,7 +47,7 @@ func notifyHumansOfFailure(data launchTmate.FailureInfo) {
 }
 
 func incomingCommand(w http.ResponseWriter, request *http.Request) {
-	sessionUrl := "https://tmate.io/t/9Vux62esXKzxJwX4240VICUl1"
+	sessionUrl := launchTmate.Launch("https://tmate.io/t/" + tmateUser)
 	w.Write([]byte(fmt.Sprintf("Your hijacked session for pipeline '%s' is ready to use - %s", failure.Pipeline, sessionUrl)))
 }
 
@@ -62,15 +62,11 @@ func main() {
 		log.Fatal("You must specify a TMATE_USER environment variable to ssh into a tmate session.")
 	}
 
-	tmateHost = os.Getenv("TMATE_HOST")
-	if tmateHost == "" {
-		log.Fatal("You must specify a TMATE_HOST environment variable to ssh into a tmate session.")
-	}
-
 	r := mux.NewRouter()
 	// Routes consist of a path and a handler function.
 	r.HandleFunc("/failure", pipelineFailure).Methods("POST")
 	r.HandleFunc("/helpmeout", incomingCommand).Methods("POST")
+
 	// Bind to a port and pass our router in
 	var port string
 	port = os.Getenv("PORT")

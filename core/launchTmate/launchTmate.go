@@ -1,7 +1,5 @@
 package launchTmate
 
-import "net/http"
-
 type FailureInfo struct {
 	Pipeline string
 	Job      string
@@ -10,6 +8,6 @@ type FailureInfo struct {
 
 var FailureData FailureInfo
 
-func Launch(w http.ResponseWriter, request *http.Request) {
-	w.Write([]byte(FailureData.Job))
+func Launch(tmateUrl string) string {
+	return tmateUrl
 }
