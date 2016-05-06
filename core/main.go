@@ -16,6 +16,8 @@ import (
 var (
 	slackGroupURL string
 	failure       launchTmate.FailureInfo
+	tmateUser     string
+	tmateHost     string
 )
 
 func pipelineFailure(w http.ResponseWriter, request *http.Request) {
@@ -55,11 +57,19 @@ func main() {
 		log.Fatal("You must specify a SLACK_HOOK_URL environment variable for your hook")
 	}
 
+	tmateUser = os.Getenv("TMATE_USER")
+	if tmateUser == "" {
+		log.Fatal("You must specify a TMATE_USER environment variable to ssh into a tmate session.")
+	}
+
+	tmateHost = os.Getenv("TMATE_HOST")
+	if tmateHost == "" {
+		log.Fatal("You must specify a TMATE_HOST environment variable to ssh into a tmate session.")
+	}
+
 	r := mux.NewRouter()
 	// Routes consist of a path and a handler function.
 	r.HandleFunc("/failure", pipelineFailure).Methods("POST")
-
-	r.HandleFunc("/tmate", launchTmate.Launch).Methods("POST")
 	r.HandleFunc("/helpmeout", incomingCommand).Methods("POST")
 	// Bind to a port and pass our router in
 	var port string
